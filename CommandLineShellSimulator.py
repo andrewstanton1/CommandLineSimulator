@@ -1,15 +1,20 @@
 from collections import defaultdict
 
+class Node:
+    @staticmethod
+    def get_node(parent):
+        return { 'parent': parent, 'children': defaultdict(dict), 'files': [] }
+
 class Directory:
     def __init__(self):
         self.root = 'user'
         self.children = defaultdict(dict)
-        self.children['user'] = { 'name': 'user', 'parent': None, 'children': defaultdict(dict), 'files': [] }
+        self.children['user'] = Node().get_node(None)
         self.stack = [self.children]
 
     def make_dir(self, name):
         if name not in self.children[self.root]['children']:
-            self.children[self.root]['children'][name] = { 'name': name, 'parent': self.root, 'children': defaultdict(dict), 'files': [] }
+            self.children[self.root]['children'][name] = Node().get_node(self.root)
             return 'Succeded'
         return 'Failed'
 
@@ -42,14 +47,14 @@ class Directory:
         else:
             self.recursive(self.children, self.root)
 
-    def recursive(self, children, root):
+    def recursive(self, children, root, level=''):
         if children[root]:
             for item in self.children[self.root]['files']:
-                print(item)
+                print(level + '|-' + item)
             for item in children[root]['children']:
-                print(item)
+                print(level + '|-' + item)
                 if children[root]['children'][item]['children']:
-                    self.recursive(children[root]['children'], item)
+                    self.recursive(children[root]['children'], item, level + "    ")
     
 class CommandLine:
     def __init__(self):
@@ -82,7 +87,12 @@ if __name__ == '__main__':
     cl.cd('folder1')
     cl.ls()
     cl.mkdir('folderA')
+    cl.mkdir('folderB')
+    cl.mkdir('folderC')
     cl.ls()
+    cl.cd('folderA')
+    cl.mkdir('folderX')
+    cl.cd('..')
     cl.cd('..')
     cl.ls('-r')
     cl.touch('andy.txt')
